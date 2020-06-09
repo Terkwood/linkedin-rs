@@ -1,2 +1,3 @@
 # linkedin-rs
-Where bad engineering and used car sales meet, for the benefit of all
+
+🔮 Stub repository. Intended to become a rust wrapper of the LinkedIn API
