@@ -5,8 +5,8 @@ FROM ${BASE_IMAGE} AS builder
 ADD --chown=rust:rust src src/
 ADD --chown=rust:rust Cargo.toml Cargo.toml
 
-#RUN cargo build --release
-RUN cargo build
+RUN cargo build --release
+#RUN cargo build
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
