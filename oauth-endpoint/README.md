@@ -6,10 +6,18 @@
 
 🙏 Check out the blog post about GOOGLE CLOUD RUN: [https://cprimozic.net/blog/rust-rocket-cloud-run/](https://cprimozic.net/blog/rust-rocket-cloud-run/)  🙏
 
-## RUN LOCAL 🛒
+## local dev 🛒
+
+build it
 
 ```sh
-docker run -p 8020:8020 -p 8021:8021 oauth
+docker build . -t linkedin-oauth-endpoint
+```
+
+run it
+
+```sh
+docker run -p 8020:8020 -p 8021:8021 linkedin-oauth-endpoint
 ```
 
 ## google cloud run

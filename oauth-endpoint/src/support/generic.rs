@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! Helper methods for several examples.
 //!
 //! The support files for each frontend include a client instance for several implemented

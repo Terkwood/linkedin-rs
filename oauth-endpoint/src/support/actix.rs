@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 extern crate actix_web;
 
 #[path="generic.rs"]
