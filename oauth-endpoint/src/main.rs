@@ -163,7 +163,7 @@ pub fn main() {
                         // Any accepted grant is good enough.
                         .map(|_grant| {
                             HttpResponse::Ok()
-                                .content_type("text/plain")
+                                .content_type("text/plain; charset=UTF-8")
                                 .body("HELLO BILL 🦀")
                         })
                         .or_else(|result| match result {
