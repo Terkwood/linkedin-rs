@@ -6,6 +6,12 @@
 
 🙏 Check out the blog post about GOOGLE CLOUD RUN: [https://cprimozic.net/blog/rust-rocket-cloud-run/](https://cprimozic.net/blog/rust-rocket-cloud-run/)  🙏
 
+## RUN LOCAL 🛒
+
+```sh
+docker run -p 8020:8020 -p 8021:8021 oauth
+```
+
 ## google cloud run
 
 ### Build

@@ -181,7 +181,7 @@ pub fn main() {
     .start();
 
     server::new(support::dummy_client)
-        .bind("localhost:8021")
+        .bind("0.0.0.0:8021")
         .expect("Failed to start dummy client")
         .start();
 
