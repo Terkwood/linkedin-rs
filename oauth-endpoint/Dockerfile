@@ -11,8 +11,9 @@ RUN cargo build
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
-# MIND THIS ONE
-ENV TARGET=debug
+# CHOOSE ONE:
+# debug OR release
+ENV TARGET=release
 COPY --from=builder \
   /home/rust/src/target/x86_64-unknown-linux-musl/$TARGET/linkedin-oauth-endpoint \
   /usr/local/bin/
