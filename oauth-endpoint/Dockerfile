@@ -14,7 +14,8 @@ FROM ${BASE_IMAGE} AS builder
 ADD --chown=rust:rust . ./
 
 # Build our application.
-RUN cargo build --release
+#RUN cargo build --release
+RUN cargo build
 
 # Now, we need to build our _real_ Docker container, copying in `linkedin-oauth-endpoint`.
 FROM alpine:latest

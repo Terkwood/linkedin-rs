@@ -176,7 +176,7 @@ pub fn main() {
                 })
             })
     })
-    .bind("localhost:8020")
+    .bind("0.0.0.0:8020")
     .expect("Failed to bind to socket")
     .start();
 
