@@ -1,5 +1,7 @@
-# Rust/Rocket/ / /Google Cloud Run Demo Project
+# linkedin oauth endpoint
 
-This is a demo project showing off a Google [Cloud Run](https://cloud.google.com/run/)-compatible web server built using Rust, [Rocket](https://rocket.rs/),  
+🔬 THIS IS EXPERIMENTAL SOFTWARE NOT FOR USE IN PRODUCTION.  BE CAREFUL!  ⚠️ We intend no harm ⚠️
 
-Check out the blog post going over how to set this up step by step: [https://cprimozic.net/blog/rust-rocket-cloud-run/](https://cprimozic.net/blog/rust-rocket-cloud-run/)
+🤖 Callback must be exposed so that you can allow the app to share a status for your account 🤖
+
+🙏 Check out the blog post about GOOGLE CLOUD RUN: [https://cprimozic.net/blog/rust-rocket-cloud-run/](https://cprimozic.net/blog/rust-rocket-cloud-run/)  🙏
