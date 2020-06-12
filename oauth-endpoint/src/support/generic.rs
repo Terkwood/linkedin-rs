@@ -12,7 +12,6 @@
 
 /// Simplistic reqwest client.
 mod client;
-
 use oxide_auth::endpoint::PreGrant;
 use std::fmt;
 
@@ -38,11 +37,14 @@ pub fn open_in_browser() {
         Err(Error::new(ErrorKind::Other, "Open not supported"))
     };
 
-    open_with.and_then(|cmd| Command::new(cmd).arg(target_addres).status())
-        .and_then(|status| if status.success() {
-            Ok(())
-        } else { 
-            Err(Error::new(ErrorKind::Other, "Non zero status")) 
+    open_with
+        .and_then(|cmd| Command::new(cmd).arg(target_addres).status())
+        .and_then(|status| {
+            if status.success() {
+                Ok(())
+            } else {
+                Err(Error::new(ErrorKind::Other, "Non zero status"))
+            }
         })
         .unwrap_or_else(|_| println!("Please navigate to {}", target_addres));
 }
@@ -58,11 +60,9 @@ pub fn consent_page_html(route: &str, grant: &PreGrant) -> String {
 </html>"
         };
     }
-    
-    format!(template!(), 
-        grant.client_id,
-        grant.redirect_uri,
-        grant.scope,
-        grant.client_id,
-        &route)
+
+    format!(
+        template!(),
+        grant.client_id, grant.redirect_uri, grant.scope, grant.client_id, &route
+    )
 }

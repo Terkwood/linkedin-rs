@@ -2,6 +2,9 @@ extern crate actix;
 extern crate actix_web;
 extern crate futures;
 extern crate oxide_auth;
+extern crate reqwest;
+extern crate serde;
+extern crate serde_json;
 extern crate url;
 
 #[path = "support/actix.rs"]
@@ -10,12 +13,14 @@ mod support;
 use std::thread;
 
 use actix::{Actor, Addr};
-use actix_web::{server, App, HttpRequest, HttpResponse};
 use actix_web::middleware::Logger;
-use futures::{Future, future};
+use actix_web::{server, App, HttpRequest, HttpResponse};
+use futures::{future, Future};
 
-use oxide_auth::frontends::actix::{AsActor, OAuth, OAuthFailure, OAuthResponse, OwnerConsent, PreGrant, ResourceProtection};
-use oxide_auth::frontends::actix::{authorization, access_token, refresh, resource};
+use oxide_auth::frontends::actix::{access_token, authorization, refresh, resource};
+use oxide_auth::frontends::actix::{
+    AsActor, OAuth, OAuthFailure, OAuthResponse, OwnerConsent, PreGrant, ResourceProtection,
+};
 use oxide_auth::frontends::simple::endpoint::FnSolicitor;
 use oxide_auth::primitives::prelude::*;
 
@@ -38,11 +43,13 @@ struct State {
 pub fn main() {
     let mut sys = actix::System::new("HttpServerClient");
 
-    let mut clients  = ClientMap::new();
+    let mut clients = ClientMap::new();
     // Register a dummy client instance
-    let client = Client::public("LocalClient", // Client id
+    let client = Client::public(
+        "LocalClient",                                     // Client id
         "http://localhost:8021/endpoint".parse().unwrap(), // Redirection url
-        "default".parse().unwrap()); // Allowed client scope
+        "default".parse().unwrap(),
+    ); // Allowed client scope
     clients.register_client(client);
 
     // Authorization tokens are 16 byte random keys to a memory hash map.
@@ -68,19 +75,22 @@ pub fn main() {
     };
 
     // Create the main server instance
-    server::new(
-        move || App::with_state(state.clone())
+    server::new(move || {
+        App::with_state(state.clone())
             .middleware(Logger::default())
             .resource("/authorize", |r| {
                 r.get().a(|req: &HttpRequest<State>| {
                     let state = req.state().clone();
                     req.oauth2()
-                        .and_then(|request| authorization(
-                            state.registrar,
-                            state.authorizer,
-                            FnSolicitor(|_: &mut _, grant: &_| in_progress_response(grant)),
-                            request,
-                            OAuthResponse::default()))
+                        .and_then(|request| {
+                            authorization(
+                                state.registrar,
+                                state.authorizer,
+                                FnSolicitor(|_: &mut _, grant: &_| in_progress_response(grant)),
+                                request,
+                                OAuthResponse::default(),
+                            )
+                        })
                         .map(|response| response.get_or_consent_with(consent_form))
                         .map_err(OAuthFailure::from)
                 });
@@ -88,65 +98,87 @@ pub fn main() {
                     let state = req.state().clone();
                     let allowed = req.query_string().contains("allow");
                     req.oauth2()
-                        .and_then(move |request| authorization(
-                            state.registrar,
-                            state.authorizer,
-                            FnSolicitor(move |_: &mut _, grant: &_| consent_decision(allowed, grant)),
-                            request,
-                            OAuthResponse::default()))
+                        .and_then(move |request| {
+                            authorization(
+                                state.registrar,
+                                state.authorizer,
+                                FnSolicitor(move |_: &mut _, grant: &_| {
+                                    consent_decision(allowed, grant)
+                                }),
+                                request,
+                                OAuthResponse::default(),
+                            )
+                        })
                         .map(OAuthResponse::unwrap)
                         .map_err(OAuthFailure::from)
                 });
             })
-            .resource("/token", |r| r.post().a(|req: &HttpRequest<State>| {
-                let state = req.state().clone();
-                req.oauth2()
-                    .and_then(|request| access_token(
-                            state.registrar,
-                            state.authorizer,
-                            state.issuer,
-                            request,
-                            OAuthResponse::default()))
-                    .map(OAuthResponse::unwrap)
-                    .map_err(OAuthFailure::from)
-            }))
-            .resource("/refresh", |r| r.post().a(|req: &HttpRequest<State>| {
-                let state = req.state().clone();
-                req.oauth2()
-                    .and_then(|request| refresh(
-                            state.registrar,
-                            state.issuer,
-                            request,
-                            OAuthResponse::default()))
-                    .map(OAuthResponse::unwrap)
-                    .map_err(OAuthFailure::from)
-            }))
-            .resource("/", |r| r.get().a(|req: &HttpRequest<State>| {
-                let state = req.state().clone();
-                req.oauth2()
-                    .map_err(ResourceProtection::Error)
-                    .and_then(|request| resource(
-                            state.issuer,
-                            state.scopes,
-                            request,
-                            OAuthResponse::default()))
-                    // Any accepted grant is good enough.
-                    .map(|_grant| HttpResponse::Ok()
-                        .content_type("text/plain")
-                        .body("Hello world!"))
-                    .or_else(|result| match result {
-                        ResourceProtection::Respond(response) => {
-                            let mut response = response.unwrap();
-                            response.set_body(DENY_TEXT);
-                            Ok(response)
-                        },
-                        ResourceProtection::Error(err) => Err(OAuthFailure::from(err)),
-                    })
-            }))
-        )
-        .bind("localhost:8020")
-        .expect("Failed to bind to socket")
-        .start();
+            .resource("/token", |r| {
+                r.post().a(|req: &HttpRequest<State>| {
+                    let state = req.state().clone();
+                    req.oauth2()
+                        .and_then(|request| {
+                            access_token(
+                                state.registrar,
+                                state.authorizer,
+                                state.issuer,
+                                request,
+                                OAuthResponse::default(),
+                            )
+                        })
+                        .map(OAuthResponse::unwrap)
+                        .map_err(OAuthFailure::from)
+                })
+            })
+            .resource("/refresh", |r| {
+                r.post().a(|req: &HttpRequest<State>| {
+                    let state = req.state().clone();
+                    req.oauth2()
+                        .and_then(|request| {
+                            refresh(
+                                state.registrar,
+                                state.issuer,
+                                request,
+                                OAuthResponse::default(),
+                            )
+                        })
+                        .map(OAuthResponse::unwrap)
+                        .map_err(OAuthFailure::from)
+                })
+            })
+            .resource("/", |r| {
+                r.get().a(|req: &HttpRequest<State>| {
+                    let state = req.state().clone();
+                    req.oauth2()
+                        .map_err(ResourceProtection::Error)
+                        .and_then(|request| {
+                            resource(
+                                state.issuer,
+                                state.scopes,
+                                request,
+                                OAuthResponse::default(),
+                            )
+                        })
+                        // Any accepted grant is good enough.
+                        .map(|_grant| {
+                            HttpResponse::Ok()
+                                .content_type("text/plain")
+                                .body("Hello world!")
+                        })
+                        .or_else(|result| match result {
+                            ResourceProtection::Respond(response) => {
+                                let mut response = response.unwrap();
+                                response.set_body(DENY_TEXT);
+                                Ok(response)
+                            }
+                            ResourceProtection::Error(err) => Err(OAuthFailure::from(err)),
+                        })
+                })
+            })
+    })
+    .bind("localhost:8020")
+    .expect("Failed to bind to socket")
+    .start();
 
     server::new(support::dummy_client)
         .bind("localhost:8021")
@@ -162,7 +194,6 @@ pub fn main() {
     // Run the rest of the system.
     let _ = sys.run();
 }
-
 
 /// A simple implementation of the first part of an authentication handler.
 ///

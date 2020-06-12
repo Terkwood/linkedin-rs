@@ -1,14 +1,8 @@
-extern crate reqwest;
-extern crate serde;
-extern crate serde_json;
-
-use std::fmt;
 use std::collections::HashMap;
+use std::fmt;
 use std::io::Read;
 use std::sync::{Arc, RwLock};
-
-use self::reqwest::{header, Response};
-
+use reqwest::{header, Response};
 /// Send+Sync client implementation.
 pub struct Client {
     config: Config,
@@ -83,7 +77,9 @@ impl Client {
         params.insert("redirect_uri", &self.config.redirect_uri);
         let access_token_request = client
             .post(&self.config.token_url)
-            .form(&params).build().unwrap();
+            .form(&params)
+            .build()
+            .unwrap();
 
         let token_response = client
             .execute(access_token_request)
@@ -145,7 +141,9 @@ impl Client {
         params.insert("refresh_token", &refresh);
         let access_token_request = client
             .post(&self.config.refresh_url)
-            .form(&params).build().unwrap();
+            .form(&params)
+            .build()
+            .unwrap();
 
         let token_response = client
             .execute(access_token_request)
@@ -156,15 +154,10 @@ impl Client {
             return Err(Error::MissingToken);
         }
 
-        let token = token_map
-            .remove("access_token")
-            .unwrap();
+        let token = token_map.remove("access_token").unwrap();
         state.token = Some(token);
-        state.refresh = token_map
-            .remove("refresh_token")
-            .or(state.refresh.take());
-        state.until = token_map
-            .remove("expires_in");
+        state.refresh = token_map.remove("refresh_token").or(state.refresh.take());
+        state.until = token_map.remove("expires_in");
         Ok(())
     }
 
@@ -173,7 +166,9 @@ impl Client {
     }
 }
 
-fn parse_token_response(mut response: Response) -> Result<HashMap<String, String>, serde_json::Error> {
+fn parse_token_response(
+    mut response: Response,
+) -> Result<HashMap<String, String>, serde_json::Error> {
     let mut token = String::new();
     response.read_to_string(&mut token).unwrap();
     serde_json::from_str(&token)
@@ -200,7 +195,9 @@ impl fmt::Display for Error {
         match self {
             Error::AuthorizationFailed => f.write_str("Could not fetch bearer token"),
             Error::NoToken => f.write_str("No token with which to access protected page"),
-            Error::AccessFailed => f.write_str("Access token failed to authorize for protected page"),
+            Error::AccessFailed => {
+                f.write_str("Access token failed to authorize for protected page")
+            }
             Error::RefreshFailed => f.write_str("Could not refresh bearer token"),
             Error::Invalid(serde) => write!(f, "Bad json response: {}", serde),
             Error::MissingToken => write!(f, "No token nor error in server response"),
