@@ -163,7 +163,7 @@ pub fn main() {
                         .map(|_grant| {
                             HttpResponse::Ok()
                                 .content_type("text/plain")
-                                .body("Hello world!")
+                                .body("HELLO BILL ")
                         })
                         .or_else(|result| match result {
                             ResourceProtection::Respond(response) => {
