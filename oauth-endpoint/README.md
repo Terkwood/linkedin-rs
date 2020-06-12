@@ -8,6 +8,15 @@
 
 ## google cloud run
 
+### Build
+
+```sh
+gcloud builds submit --tag gcr.io/PROJECT-ID/linkedin-oauth-endpoint
+```
+
+
+### Deploy
+
 [deploy using google cloud run](https://cloud.google.com/run/docs/quickstarts/build-and-deploy?_ga=2.247509319.-199990648.1584658988#deploying_to) 
 
 from the docs
