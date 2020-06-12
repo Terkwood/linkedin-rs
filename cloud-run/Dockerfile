@@ -1,23 +1,25 @@
-FROM debian:buster AS builder
+# -*- mode: dockerfile -*-
+#
+# An example Dockerfile showing how to build a Rust executable using this
+# image, and deploy it with a tiny Alpine Linux container.
 
-RUN apt-get update && apt-get install -y curl build-essential
+# You can override this `--build-arg BASE_IMAGE=...` to use different
+# version of Rust or OpenSSL.
+ARG BASE_IMAGE=ekidd/rust-musl-builder:latest
 
+# Our first FROM statement declares the build environment.
+FROM ${BASE_IMAGE} AS builder
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh 
-ENV PATH="/root/.cargo/bin:${PATH}"
+# Add our source code.
+ADD --chown=rust:rust . ./
 
-ADD . ./
-
+# Build our application.
 RUN cargo build --release
 
-FROM debian:buster
-
-RUN apt-get update
-
+# Now, we need to build our _real_ Docker container, copying in `linkedin-oauth-endpoint`.
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
 COPY --from=builder \
-  /target/release/linkedin-oauth-endpoint \
+  /home/rust/src/target/x86_64-unknown-linux-musl/release/linkedin-oauth-endpoint \
   /usr/local/bin/
-
-WORKDIR /root
-ENV RUST_LOG=info
-CMD ROCKET_PORT=$PORT /usr/local/bin/linkedin-oauth-endpoint
+CMD /usr/local/bin/linkedin-oauth-endpoint
