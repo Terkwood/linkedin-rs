@@ -53,7 +53,8 @@ pub fn open_in_browser() {
 pub fn consent_page_html(route: &str, grant: &PreGrant) -> String {
     macro_rules! template {
         () => {
-"<html>'{0:}' (at {1:}) is requesting permission for '{2:}'
+"<html><head><meta content=\"text/html;charset=utf-8\" http-equiv=\"Content-Type\">
+<meta content=\"utf-8\" http-equiv=\"encoding\"></head>'{0:}' (at {1:}) is requesting permission for '{2:}'
 <form method=\"post\">
     <input type=\"submit\" value=\"Accept\" formaction=\"{4:}?response_type=code&client_id={3:}&allow=true\">
     <input type=\"submit\" value=\"Deny\" formaction=\"{4:}?response_type=code&client_id={3:}\">
