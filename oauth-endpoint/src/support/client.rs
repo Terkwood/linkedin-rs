@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
+use reqwest::{header, Response};
 use std::collections::HashMap;
 use std::fmt;
 use std::io::Read;
 use std::sync::{Arc, RwLock};
-use reqwest::{header, Response};
 /// Send+Sync client implementation.
 pub struct Client {
     config: Config,

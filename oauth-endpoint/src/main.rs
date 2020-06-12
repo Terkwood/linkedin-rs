@@ -202,7 +202,7 @@ pub fn main() {
 /// will then trigger the other authorization handler which actually completes the flow.
 fn consent_form(grant: PreGrant) -> HttpResponse {
     HttpResponse::Ok()
-        .content_type("text/html")
+        .content_type("text/html; charset=UTF-8")
         .body(support::consent_page_html("/authorize".into(), &grant))
 }
 

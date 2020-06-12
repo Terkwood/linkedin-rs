@@ -71,7 +71,7 @@ fn get_with_token(request: HttpRequest<Client>) -> HttpResponse {
         </main></html>", state.as_html(), protected_page);
 
     HttpResponse::Ok()
-        .content_type("text/html")
+        .content_type("text/html; charset=UTF-8")
         .body(display_page)
 }
 
