@@ -5,3 +5,11 @@
 🤖 Callback must be exposed so that you can allow the app to share a status for your account 🤖
 
 🙏 Check out the blog post about GOOGLE CLOUD RUN: [https://cprimozic.net/blog/rust-rocket-cloud-run/](https://cprimozic.net/blog/rust-rocket-cloud-run/)  🙏
+
+## google cloud run
+
+from the docs
+
+```sh
+gcloud builds submit --tag gcr.io/PROJECT-ID/linkedin-oauth-endpoint
+```
