@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 actix = { version = "0.7.9" }
 actix-web = { version = "0.7.17"  }
-oxide-auth =  { git = "https://github.com/HeroicKatora/oxide-auth"} 
+oxide-auth =  { git = "https://github.com/Terkwood/oxide-auth"} 
 base64 = "0.9"
 chrono = "0.4.2"
 serde = "1.0"
