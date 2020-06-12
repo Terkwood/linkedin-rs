@@ -6,5 +6,5 @@ extern crate serde_json;
 pub mod cors;
 pub mod routes;
 fn main() {
-    todo!("oauth")
+    println!("Hippo")
 }
